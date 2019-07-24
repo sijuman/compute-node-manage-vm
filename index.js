@@ -16,6 +16,7 @@ const request = require('request');
 const https = require('https');
 const fetch = require("node-fetch");
 const requestPromise = util.promisify(request);
+var sleep = require('system-sleep');
 
 _validateEnvironmentVariables();
 var clientId = process.env['CLIENT_ID'];
@@ -101,7 +102,7 @@ function main() {
     map["activeDirectoryEndpointUrl"] = userDetails.authentication.loginEndpoint.slice(0, userDetails.authentication.loginEndpoint.lastIndexOf("/") + 1)
     map["activeDirectoryResourceId"] = userDetails.authentication.audiences[0]
     map["activeDirectoryGraphResourceId"] = userDetails.graphEndpoint
-    map["storageEndpointSuffix"] = "." + base_url.substring(base_url.indexOf('.'))
+    map["storageEndpointSuffix"] = base_url.substring(base_url.indexOf('.'))
     map["keyVaultDnsSuffix"] = ".vault" + base_url.substring(base_url.indexOf('.'))
     map["managementEndpointUrl"] = userDetails.authentication.audiences[0]
     map["validateAuthority"] = "false"
@@ -197,9 +198,10 @@ function main() {
               }
             });
           },
+          
           function (callback) {
             //////////////////////////////////////////////////////
-            //Task5: Lisitng All the VMs under the subscription.//
+            //Task5: Listing All the VMs under the subscription.//
             //////////////////////////////////////////////////////
             console.log('\n>>>>>>>Start of Task5: List all vms under the current subscription.');
             computeClient.virtualMachines.listAll(function (err, result) {
@@ -226,7 +228,6 @@ function main() {
               console.log(util.format('\n\n-->Please execute the following script for cleanup:\nnode cleanup.js %s %s', resourceGroupName, vmName));
             }
           console.log('\n###### Exit ######');
-          console.log(util.format('Please execute the following script for cleanup:\nnode cleanup.js %s %s', resourceGroupName, resourceName));
           process.exit();
           });
       });
@@ -318,8 +319,10 @@ main();
       return networkClient.virtualNetworks.createOrUpdate(resourceGroupName, vnetName, vnetParameters, callback);
     }
 
+    
     function getSubnetInfo(callback) {
       console.log('\nGetting subnet info for: ' + subnetName);
+      sleep(10000);
       return networkClient.subnets.get(resourceGroupName, vnetName, subnetName, callback);
     }
 
@@ -382,7 +385,8 @@ main();
             name: osDiskName,
             caching: 'None',
             createOption: 'fromImage',
-            vhd: { uri: 'https://' + storageAccountName + '.blob.core.windows.net/nodejscontainer/osnodejslinux.vhd' }
+            vhd: { uri: 'https://' + storageAccountName + '.blob' +map["storageEndpointSuffix"]+'vhds/'+osDiskName+'.vhd' }
+            //vhd: { uri: 'https://' + storageAccountName + '.blob'+storageEndpointSuffix+'/vhds/'+osDiskName+'.vhd' }
           },
         },
         networkProfile: {
