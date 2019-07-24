@@ -386,7 +386,6 @@ main();
             caching: 'None',
             createOption: 'fromImage',
             vhd: { uri: 'https://' + storageAccountName + '.blob' +map["storageEndpointSuffix"]+'vhds/'+osDiskName+'.vhd' }
-            //vhd: { uri: 'https://' + storageAccountName + '.blob'+storageEndpointSuffix+'/vhds/'+osDiskName+'.vhd' }
           },
         },
         networkProfile: {
